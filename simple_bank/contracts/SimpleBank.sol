@@ -9,25 +9,27 @@ contract SimpleBank {
     event LogDepositMade(address accountAddress, uint amount);
     event LogWithdrawal(address accountAddress, uint withdrawAmount, uint newBalance);
 
-    public constructor() {
+    constructor() public {
         owner = msg.sender;
     }
 
-    function enroll(address customer) public returns (bool){
-        enrolled[customer] = true;
-        emit LogEnrolled(customer);
+    function enroll() public returns (bool){
+        enrolled[msg.sender] = true;
+        emit LogEnrolled(msg.sender);
     }
 
-    function deposit(address user) public payable returns (uint) {
-        balances[user] += msg.value;
-        emit LogDepositMade(user, msg.value);
-        return balances[user];
+    function deposit() public payable returns (uint) {
+        balances[msg.sender] += msg.value;
+        emit LogDepositMade(msg.sender, msg.value);
+        return balances[msg.sender];
     }
 
-    function withdraw(uint withdrawAmount, address user) public payable returns (uint) {
+    function withdraw(uint withdrawAmount) public payable returns (uint) {
+        address user = msg.sender;
         if(balances[user] >= withdrawAmount) { 
             balances[user] -= withdrawAmount;
             user.transfer(withdrawAmount);
+            emit LogWithdrawal(user, withdrawAmount, balances[user]);
         } else {
             return balances[user];
         }
